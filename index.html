@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offer Comparison Calculator</title>
+<meta name="description" content="Compare two job offers side by side: base, signing bonus, annual bonus, equity, 401k match, benefits, PTO, and commute. Fully client-side, no external dependencies, everything is your own input.">
+<link rel="canonical" href="https://0xelitesystem.github.io/offer-comparison-calculator/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Offer Comparison Calculator">
+<meta property="og:description" content="Compare two job offers side by side in your browser. Base, signing, bonus, equity, 401k match, benefits, commute. No server, no market data, just your numbers.">
+<meta property="og:url" content="https://0xelitesystem.github.io/offer-comparison-calculator/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Offer Comparison Calculator",
+  "description": "Compare two job offers side by side: base salary, signing bonus, annual bonus, equity, 401k match, benefits, PTO, and commute cost. Fully client-side.",
+  "url": "https://0xelitesystem.github.io/offer-comparison-calculator/",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Organization", "name": "0xelitesystem", "url": "https://elitesystem.ai" }
+}
+</script>
+<style>
+:root {
+  --bg: #fafaf6;
+  --surface: #ffffff;
+  --ink: #0a1d1e;
+  --ink-soft: #2c4a4c;
+  --rule: #c8d4d3;
+  --teal: #0f5c60;
+  --teal-deep: #0a4548;
+  --gold: #b07d2a;
+  --gold-deep: #8a611f;
+  --ok: #1a5c2e;
+  --warn: #8a5a00;
+  --err: #8b1a1a;
+  --code-bg: #f0ebe1;
+  --a-col: #2660a8;
+  --b-col: #b03d8f;
+}
+[data-theme="dark"] {
+  --bg: #0c1c1d;
+  --surface: #14292a;
+  --ink: #e8ebe6;
+  --ink-soft: #b0c0bd;
+  --rule: #2a4042;
+  --teal: #4ab4ba;
+  --teal-deep: #6dc8ce;
+  --gold: #d4a155;
+  --gold-deep: #e6b876;
+  --ok: #6dd380;
+  --warn: #d4a155;
+  --err: #e88080;
+  --code-bg: #0a1718;
+  --a-col: #6da8e0;
+  --b-col: #d97ab8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  line-height: 1.55;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 2px solid var(--teal);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--teal);
+}
+.tag {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.75rem;
+  color: var(--gold-deep);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+[data-theme="dark"] .tag { color: var(--gold); }
+.theme-btn {
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.theme-btn:hover { border-color: var(--teal); color: var(--teal); }
+.lede {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+  max-width: 72ch;
+}
+.honesty {
+  font-size: 0.82rem;
+  color: var(--gold-deep);
+  background: var(--code-bg);
+  border-left: 3px solid var(--gold);
+  padding: 0.65rem 0.85rem;
+  border-radius: 2px;
+  margin-bottom: 1.75rem;
+  max-width: 72ch;
+}
+[data-theme="dark"] .honesty { color: var(--gold); }
+.offers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.section {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-radius: 3px;
+}
+.offer-card { margin-bottom: 0; border-top: 3px solid var(--a-col); }
+.offer-card.offer-b { border-top-color: var(--b-col); }
+.offer-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.85rem;
+  color: var(--a-col);
+}
+.offer-b .offer-title { color: var(--b-col); }
+label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.field { margin-bottom: 0.85rem; }
+input[type="text"], input[type="number"], select, textarea {
+  width: 100%;
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  padding: 0.55rem 0.65rem;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.85rem;
+  border-radius: 2px;
+}
+textarea { min-height: 54px; resize: vertical; font-family: inherit; }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+.hint {
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-top: 0.25rem;
+}
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.85rem;
+}
+.horizon-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+input[type="range"] { flex: 1; min-width: 160px; accent-color: var(--teal); }
+.horizon-val {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--teal);
+  min-width: 5.5rem;
+}
+.totals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.total-card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 1.1rem 1.25rem;
+  border-top: 3px solid var(--a-col);
+}
+.total-card.total-b { border-top-color: var(--b-col); }
+.total-name { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.35rem; }
+.total-big {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 1.45rem;
+  font-weight: 600;
+}
+.total-sub {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin-top: 0.3rem;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+th, td {
+  text-align: right;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+th:first-child, td:first-child {
+  text-align: left;
+  font-family: ui-serif, Georgia, serif;
+}
+th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+th.col-a { color: var(--a-col); }
+th.col-b { color: var(--b-col); }
+tr.total-row td { font-weight: 700; border-top: 2px solid var(--teal); }
+td.pos { color: var(--ok); }
+td.neg { color: var(--err); }
+td.muted, .muted { color: var(--ink-soft); font-style: italic; }
+button {
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 2px;
+}
+button:hover { border-color: var(--teal); }
+button.primary {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: var(--surface);
+  font-weight: 600;
+}
+[data-theme="dark"] button.primary { color: var(--bg) !important; }
+button.primary:hover { background: var(--teal-deep); border-color: var(--teal-deep); }
+.copy-row { display: flex; gap: 0.75rem; align-items: center; margin-top: 1rem; flex-wrap: wrap; }
+.copy-done { font-size: 0.8rem; color: var(--ok); }
+.notes-out {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin-top: 0.85rem;
+}
+footer {
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+footer a { color: var(--teal); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+@media (max-width: 720px) {
+  body { padding: 1rem 0.75rem; }
+  h1 { font-size: 1.4rem; }
+  .offers-grid, .totals-grid, .pair { grid-template-columns: 1fr; }
+  th, td { padding: 0.4rem 0.35rem; font-size: 0.78rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Offer Comparison Calculator</h1>
+    <div class="tag">Two offers, side by side, in your browser</div>
+  </div>
+  <button class="theme-btn" id="theme-toggle" type="button">Dark</button>
+</header>
+
+<p class="lede">Enter the numbers from two job offers and see year-1 total compensation, average annual compensation over your chosen horizon, and a component-by-component difference table. Everything recalculates live. Nothing leaves this page.</p>
+
+<div class="honesty">Honesty note: this tool contains no market data, no salary benchmarks, and fetches nothing. Every number below is your own input. Comparisons are only as good as the numbers you type in.</div>
+
+<div class="section">
+  <div class="section-title">Comparison horizon</div>
+  <div class="horizon-row">
+    <label for="horizon" style="margin-bottom:0;">Years</label>
+    <input type="range" id="horizon" min="1" max="4" step="1" value="4" aria-describedby="horizon-hint">
+    <span class="horizon-val" id="horizon-val">4 years</span>
+  </div>
+  <div class="hint" id="horizon-hint">Averages annual comp over this many years. The one-time signing bonus is amortized across this horizon; equity is always spread over its 4-year grant.</div>
+</div>
+
+<div class="offers-grid">
+  <div class="section offer-card" id="card-a"></div>
+  <div class="section offer-card offer-b" id="card-b"></div>
+</div>
+
+<div class="totals-grid">
+  <div class="total-card">
+    <div class="total-name" id="tot-name-a">Offer A</div>
+    <div class="total-big" id="tot-y1-a">$0</div>
+    <div class="total-sub">year-1 total comp</div>
+    <div class="total-sub" id="tot-avg-a">avg annual over horizon: $0</div>
+    <div class="total-sub" id="tot-col-a" hidden></div>
+  </div>
+  <div class="total-card total-b">
+    <div class="total-name" id="tot-name-b">Offer B</div>
+    <div class="total-big" id="tot-y1-b">$0</div>
+    <div class="total-sub">year-1 total comp</div>
+    <div class="total-sub" id="tot-avg-b">avg annual over horizon: $0</div>
+    <div class="total-sub" id="tot-col-b" hidden></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Side by side</div>
+  <div style="overflow-x:auto;">
+  <table aria-live="polite">
+    <thead>
+      <tr><th>Component</th><th class="col-a" id="th-a">Offer A</th><th class="col-b" id="th-b">Offer B</th><th>Difference (B minus A)</th></tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+  </div>
+  <div class="notes-out" id="notes-out"></div>
+  <div class="copy-row">
+    <button class="primary" id="copy-btn" type="button">Copy summary as text</button>
+    <span class="copy-done" id="copy-done" role="status"></span>
+  </div>
+</div>
+
+<footer>
+  <div>Offer Comparison Calculator. Open source, MIT licensed. Built by <a href="https://elitesystem.ai" target="_blank" rel="noopener">elitesystem</a>.</div>
+  <div>No external dependencies. Works offline.</div>
+</footer>
+</div>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+
+// Theme toggle
+const themeBtn = $("theme-toggle");
+function setTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  themeBtn.textContent = t === "dark" ? "Light" : "Dark";
+}
+themeBtn.addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme") || "light";
+  setTheme(cur === "dark" ? "light" : "dark");
+});
+setTheme("light");
+
+// Build the two offer input cards from one template so they stay identical.
+function offerCard(prefix, defaultName) {
+  return `
+  <div class="offer-title" id="${prefix}-title">${defaultName}</div>
+  <div class="field">
+    <label for="${prefix}-name">Offer name</label>
+    <input type="text" id="${prefix}-name" placeholder="${defaultName}" autocomplete="off">
+  </div>
+  <div class="field">
+    <label for="${prefix}-base">Base salary ($ / year)</label>
+    <input type="number" id="${prefix}-base" min="0" step="1000" placeholder="120000">
+  </div>
+  <div class="field">
+    <label for="${prefix}-signing">Signing bonus ($, one-time)</label>
+    <input type="number" id="${prefix}-signing" min="0" step="500" placeholder="10000">
+    <div class="hint">Paid once. Counted in full in year 1, and amortized over the horizon slider for the average.</div>
+  </div>
+  <div class="field">
+    <div class="pair">
+      <div>
+        <label for="${prefix}-bonus">Annual bonus</label>
+        <input type="number" id="${prefix}-bonus" min="0" step="0.5" placeholder="10">
+      </div>
+      <div>
+        <label for="${prefix}-bonus-type">Bonus type</label>
+        <select id="${prefix}-bonus-type">
+          <option value="pct">% of base</option>
+          <option value="flat">flat $ / year</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="field">
+    <label for="${prefix}-equity">Equity: your estimated total grant value over 4 years ($)</label>
+    <input type="number" id="${prefix}-equity" min="0" step="1000" placeholder="40000">
+    <div class="hint">Your estimate, not a fact. Private-company equity value is speculative and may be worth zero. Public RSUs move with the stock. Spread evenly over 4 years here.</div>
+  </div>
+  <div class="field">
+    <div class="pair">
+      <div>
+        <label for="${prefix}-match">401k match (%)</label>
+        <input type="number" id="${prefix}-match" min="0" max="200" step="5" placeholder="100">
+      </div>
+      <div>
+        <label for="${prefix}-match-cap">up to (% of salary)</label>
+        <input type="number" id="${prefix}-match-cap" min="0" max="100" step="0.5" placeholder="4">
+      </div>
+    </div>
+    <div class="hint">Example: 100% match up to 4% of salary. Assumes you contribute enough to capture the full match.</div>
+  </div>
+  <div class="field">
+    <label for="${prefix}-benefits">Other annual benefits value ($ / year)</label>
+    <input type="number" id="${prefix}-benefits" min="0" step="100" placeholder="3000">
+    <div class="hint">Health premium difference, stipends, HSA contributions, anything else you can put a yearly number on.</div>
+  </div>
+  <div class="field">
+    <label for="${prefix}-pto">PTO days / year</label>
+    <input type="number" id="${prefix}-pto" min="0" max="365" step="1" placeholder="20">
+    <div class="hint">Shown for comparison, not converted to dollars. Time off is real value but pricing it is a personal call.</div>
+  </div>
+  <div class="field">
+    <div class="pair">
+      <div>
+        <label for="${prefix}-setup">Work setup</label>
+        <select id="${prefix}-setup">
+          <option value="remote">Remote</option>
+          <option value="hybrid">Hybrid</option>
+          <option value="onsite">Onsite</option>
+        </select>
+      </div>
+      <div>
+        <label for="${prefix}-commute">Commute cost ($ / month)</label>
+        <input type="number" id="${prefix}-commute" min="0" step="10" placeholder="0">
+      </div>
+    </div>
+    <div class="hint">Commute cost is subtracted from effective comp (x12 per year). Optional.</div>
+  </div>
+  <div class="field">
+    <label for="${prefix}-col-note">Cost-of-living note (free text)</label>
+    <textarea id="${prefix}-col-note" placeholder="e.g. Austin vs NYC, rent runs about $900/mo less"></textarea>
+  </div>
+  <div class="field">
+    <label for="${prefix}-col-adj">Optional COL adjustment (%)</label>
+    <input type="number" id="${prefix}-col-adj" step="1" placeholder="0">
+    <div class="hint">Your own number, not fetched from anywhere. +10 means this money goes 10% further where this job is; -10 means it goes 10% less far. Applied to the averages as a separate adjusted line.</div>
+  </div>`;
+}
+$("card-a").innerHTML = offerCard("a", "Offer A");
+$("card-b").innerHTML = offerCard("b", "Offer B");
+
+function num(id) {
+  const v = parseFloat($(id).value);
+  return isFinite(v) ? v : 0;
+}
+
+function readOffer(p, fallback) {
+  const base = num(p + "-base");
+  const bonusVal = num(p + "-bonus");
+  const bonusType = $(p + "-bonus-type").value;
+  const o = {
+    name: $(p + "-name").value.trim() || fallback,
+    base: base,
+    signing: num(p + "-signing"),
+    bonus: bonusType === "pct" ? base * bonusVal / 100 : bonusVal,
+    equityYr: num(p + "-equity") / 4,
+    match: base * (num(p + "-match") / 100) * (num(p + "-match-cap") / 100),
+    benefits: num(p + "-benefits"),
+    pto: $(p + "-pto").value,
+    setup: $(p + "-setup").value,
+    commuteYr: num(p + "-commute") * 12,
+    colNote: $(p + "-col-note").value.trim(),
+    colAdj: parseFloat($(p + "-col-adj").value)
+  };
+  o.recurring = o.base + o.bonus + o.equityYr + o.match + o.benefits - o.commuteYr;
+  return o;
+}
+
+function totals(o, horizon) {
+  const year1 = o.recurring + o.signing;
+  const avg = o.recurring + o.signing / horizon;
+  const colAvg = isFinite(o.colAdj) && o.colAdj !== 0 ? avg * (1 + o.colAdj / 100) : null;
+  return { year1: year1, avg: avg, colAvg: colAvg };
+}
+
+function fmt(n) {
+  const sign = n < 0 ? "-" : "";
+  return sign + "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
+}
+function fmtDiff(n) {
+  if (Math.round(Math.abs(n)) === 0) return "$0";
+  return (n > 0 ? "+" : "-") + "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
+}
+function esc(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+let lastSummary = "";
+
+function recalc() {
+  const horizon = parseInt($("horizon").value, 10);
+  $("horizon-val").textContent = horizon + (horizon === 1 ? " year" : " years");
+  const A = readOffer("a", "Offer A");
+  const B = readOffer("b", "Offer B");
+  const tA = totals(A, horizon);
+  const tB = totals(B, horizon);
+
+  $("a-title").textContent = A.name;
+  $("b-title").textContent = B.name;
+  $("th-a").textContent = A.name;
+  $("th-b").textContent = B.name;
+  $("tot-name-a").textContent = A.name;
+  $("tot-name-b").textContent = B.name;
+  $("tot-y1-a").textContent = fmt(tA.year1);
+  $("tot-y1-b").textContent = fmt(tB.year1);
+  $("tot-avg-a").textContent = "avg annual over " + horizon + " yr: " + fmt(tA.avg);
+  $("tot-avg-b").textContent = "avg annual over " + horizon + " yr: " + fmt(tB.avg);
+  for (const [id, t] of [["tot-col-a", tA], ["tot-col-b", tB]]) {
+    const el = $(id);
+    if (t.colAvg !== null) {
+      el.hidden = false;
+      el.textContent = "COL-adjusted avg (your %): " + fmt(t.colAvg);
+    } else {
+      el.hidden = true;
+    }
+  }
+
+  const rows = [
+    ["Base salary", A.base, B.base],
+    ["Signing bonus (year 1, one-time)", A.signing, B.signing],
+    ["Signing amortized / yr over " + horizon, A.signing / horizon, B.signing / horizon],
+    ["Annual bonus", A.bonus, B.bonus],
+    ["Equity / yr (your estimate, 4-yr spread)", A.equityYr, B.equityYr],
+    ["401k match / yr", A.match, B.match],
+    ["Other benefits / yr", A.benefits, B.benefits],
+    ["Commute cost / yr (subtracted)", -A.commuteYr, -B.commuteYr]
+  ];
+  let html = "";
+  for (const [label, va, vb] of rows) {
+    const d = vb - va;
+    const cls = d > 0.5 ? "pos" : (d < -0.5 ? "neg" : "");
+    html += `<tr><td>${esc(label)}</td><td>${fmt(va)}</td><td>${fmt(vb)}</td><td class="${cls}">${fmtDiff(d)}</td></tr>`;
+  }
+  const totalRows = [
+    ["Year-1 total comp", tA.year1, tB.year1],
+    ["Avg annual over " + horizon + " yr", tA.avg, tB.avg]
+  ];
+  if (tA.colAvg !== null || tB.colAvg !== null) {
+    totalRows.push(["COL-adjusted avg (user-supplied %)", tA.colAvg !== null ? tA.colAvg : tA.avg, tB.colAvg !== null ? tB.colAvg : tB.avg]);
+  }
+  for (const [label, va, vb] of totalRows) {
+    const d = vb - va;
+    const cls = d > 0.5 ? "pos" : (d < -0.5 ? "neg" : "");
+    html += `<tr class="total-row"><td>${esc(label)}</td><td>${fmt(va)}</td><td>${fmt(vb)}</td><td class="${cls}">${fmtDiff(d)}</td></tr>`;
+  }
+  html += `<tr><td>PTO days / yr (not monetized)</td><td class="muted">${esc(A.pto || "n/a")}</td><td class="muted">${esc(B.pto || "n/a")}</td><td class="muted">see note</td></tr>`;
+  html += `<tr><td>Work setup</td><td class="muted">${esc(A.setup)}</td><td class="muted">${esc(B.setup)}</td><td class="muted"></td></tr>`;
+  $("table-body").innerHTML = html;
+
+  let notes = "";
+  if (A.colNote) notes += `<div><strong>${esc(A.name)} COL note:</strong> ${esc(A.colNote)}</div>`;
+  if (B.colNote) notes += `<div><strong>${esc(B.name)} COL note:</strong> ${esc(B.colNote)}</div>`;
+  notes += `<div>PTO is listed but not converted to dollars. Equity values are your own estimates. COL adjustments are user-supplied, nothing here is fetched or benchmarked.</div>`;
+  $("notes-out").innerHTML = notes;
+
+  // Plain-text summary for the copy button
+  const lines = [];
+  lines.push("OFFER COMPARISON (all numbers user-supplied, horizon " + horizon + " yr)");
+  lines.push("");
+  for (const [o, t] of [[A, tA], [B, tB]]) {
+    lines.push(o.name + " (" + o.setup + ")");
+    lines.push("  Base: " + fmt(o.base) + " | Signing (one-time): " + fmt(o.signing) + " | Bonus: " + fmt(o.bonus) + "/yr");
+    lines.push("  Equity est: " + fmt(o.equityYr) + "/yr | 401k match: " + fmt(o.match) + "/yr | Benefits: " + fmt(o.benefits) + "/yr | Commute: " + fmt(o.commuteYr) + "/yr");
+    lines.push("  PTO: " + (o.pto || "n/a") + " days (not monetized)");
+    lines.push("  Year-1 total: " + fmt(t.year1) + " | Avg annual over " + horizon + " yr: " + fmt(t.avg));
+    if (t.colAvg !== null) lines.push("  COL-adjusted avg (my own " + o.colAdj + "%): " + fmt(t.colAvg));
+    if (o.colNote) lines.push("  COL note: " + o.colNote);
+    lines.push("");
+  }
+  lines.push("Difference (year-1): " + fmtDiff(tB.year1 - tA.year1) + " in favor of " + (tB.year1 >= tA.year1 ? B.name : A.name));
+  lines.push("Difference (avg annual): " + fmtDiff(tB.avg - tA.avg) + " in favor of " + (tB.avg >= tA.avg ? B.name : A.name));
+  lines.push("");
+  lines.push("Generated locally by Offer Comparison Calculator. No market data, user input only.");
+  lastSummary = lines.join("\n");
+}
+
+$("copy-btn").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(lastSummary);
+    $("copy-done").textContent = "Copied.";
+  } catch (e) {
+    // Fallback for older browsers or blocked clipboard access
+    const ta = document.createElement("textarea");
+    ta.value = lastSummary;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    $("copy-done").textContent = "Copied.";
+  }
+  setTimeout(() => { $("copy-done").textContent = ""; }, 2000);
+});
+
+document.addEventListener("input", recalc);
+document.addEventListener("change", recalc);
+recalc();
+</script>
+</body>
+</html>
