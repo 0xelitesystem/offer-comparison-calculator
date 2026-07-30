@@ -33,6 +33,10 @@ There is no market data, no benchmarks, and nothing fetched. Every number is you
 
 All client-side. Nothing leaves the browser: no requests, no analytics, no storage. Open the network tab and watch, no traffic.
 
+## More
+
+Part of a catalog of single-file browser tools and plain-language references, all MIT licensed and dependency-free: [0xelitesystem.github.io](https://0xelitesystem.github.io/). Built by [elitesystem.ai](https://elitesystem.ai).
+
 ## License
 
 MIT. Copyright 0xelitesystem 2026.
