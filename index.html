@@ -309,6 +309,7 @@ footer a:hover { text-decoration: underline; }
 :root[data-theme="light"] {
   --bg: #e8ebef;
   --code-bg: #dee2e8;
+  --b-col: #9a3279;
   --err: #a82d14;
   --gold: #8a4d00;
   --gold-deep: #8a4d00;
@@ -323,6 +324,9 @@ footer a:hover { text-decoration: underline; }
 }
 :root { color-scheme: dark; }
 :root[data-theme="light"] { color-scheme: light; }
+
+/* Footer links are underlined so they never rely on colour alone (WCAG 1.4.1). */
+footer a { text-decoration: underline; text-underline-offset: 0.15em; }
 </style>
 </head>
 <body>
@@ -391,6 +395,7 @@ footer a:hover { text-decoration: underline; }
 <footer>
   <div>Offer Comparison Calculator. Open source, MIT licensed. Built by <a href="https://elitesystem.ai" target="_blank" rel="noopener">elitesystem</a> &middot; <a href="https://github.com/0xelitesystem/offer-comparison-calculator" target="_blank" rel="noopener">Source on GitHub</a> &middot; <a href="https://0xelitesystem.github.io/" target="_blank" rel="noopener">More tools</a>.</div>
   <div>No external dependencies. Works offline.</div>
+  <div>For general information only. This is not financial, tax or legal advice. Check the numbers with a qualified professional before you rely on them.</div>
 </footer>
 </div>
 

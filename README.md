@@ -2,6 +2,8 @@
 
 Compare two job offers side by side, fully in your browser. Base salary, signing bonus, annual bonus, equity, 401k match, benefits, PTO, and commute cost, with a live component-by-component difference table. No server, no tracking, no external dependencies.
 
+For general information only. This is not financial, tax or legal advice. Check the numbers with a qualified professional before you rely on them.
+
 ## Live demo
 
 https://0xelitesystem.github.io/offer-comparison-calculator/
